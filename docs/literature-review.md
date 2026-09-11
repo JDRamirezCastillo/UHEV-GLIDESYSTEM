@@ -419,7 +419,49 @@ strongest, most literature-grounded argument found so far for GLIDE's HMI choice
 
 ## 5. Regulatory Positioning Follow-Up
 
-**Status:** _not started — tracked for completeness; resolved via correspondence, not literature._
+**Status:** partial — Art. 230d resolved by design; Art. 57i classification question deliberately
+left open (not literature-resolvable; requires direct correspondence with Shell Eco-marathon,
+tracked here for completeness).
+
+### Art. 230d (no manipulation of onboard telemetry between finish line and Technical
+Inspection) — resolved by design
+
+**Decision (this session):** add an SD card module + RTC (real-time clock, e.g. DS3231) to
+GLIDE's Arduino, and a physical pushbutton on the steering wheel, with the following behavior:
+
+- Every attempt is logged to its own timestamped file on the SD card (distance, instantaneous
+  power, cumulative energy, error vs. reference profile, LED state over time). The RTC provides a
+  real wall-clock timestamp that survives power cycles — `millis()` alone would not, since it
+  resets on every power-up and can't distinguish sessions.
+- The "live" accumulators (current attempt's running distance/energy) are **not** reset
+  automatically. They persist until the driver presses the steering-wheel pushbutton, which
+  closes out the current log file (writing a final summary line) and zeroes the accumulators for
+  the next attempt.
+- **Compliance condition (team protocol, not just hardware):** the pushbutton must only be
+  pressed *after* the Technical Team has released the vehicle from its post-attempt inspection —
+  never between crossing the finish line and that release. Art. 230d's prohibited window is
+  specifically *finish line → Technical Inspection*, not *finish line → forever*; since the
+  completed attempt's log is already written to SD with an immutable timestamp before anyone
+  touches the button, the just-finished attempt's data is available for inspection regardless of
+  when the button is later pressed.
+- This should be stated explicitly in the electrical documentation submitted under Art. 67c — the
+  team pre-declaring its own "don't touch the button until cleared" procedure strengthens the
+  compliance position by showing the constraint was designed in, not improvised after the fact.
+- Side benefit (not the primary motivation, but worth noting): per-attempt SD logs with real
+  timestamps are exactly the telemetry the handover's calibration plan (Section 4, step 4) needs
+  to build the non-uniform, segment-based reference profile from practice-session data — this
+  hardware addition serves both the regulatory-compliance goal and the reference-profile
+  refinement goal at once.
+
+### Art. 57i (driver-display exemption classification) — deliberately left open
+
+Per the handover's existing analysis: the Arduino+LED system most likely does not qualify for
+the "unmodified, self-contained" driver-display exemption, and the safer position is to treat
+GLIDE as part of the vehicle's electrical circuit (joulemeter-metered, fused, documented). The
+question of whether Shell Eco-marathon organizers would rule differently if asked directly
+remains **open on purpose** — not being resolved in this session. Next step, whenever the team
+is ready to pursue it, is still to email shellecomarathon@shell.com per the handover's original
+recommendation (Section 2).
 
 ---
 
