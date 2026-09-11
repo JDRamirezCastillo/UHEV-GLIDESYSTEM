@@ -318,7 +318,102 @@ control-theory concept is carried forward.)
 
 ## 4. Driver-Coaching HMI Design (Discrete vs. Continuous Feedback)
 
-**Status:** _not started_
+**Status:** draft complete
+
+### Deep-dive 1 — Sanguinetti, "Onboard Feedback to Promote Eco-Driving: Average Impact and
+Important Features", National Center for Sustainable Transportation / UC Davis white paper
+(2018), and the underlying design framework Sanguinetti, Dombrovski & Sikand, *"Information,
+timing, and display: A design-behavior framework for improving the effectiveness of
+eco-feedback"*, Energy Research & Social Science (2018)
+
+This is the most directly relevant source found in this review to date. The design framework
+splits eco-feedback along three axes — **information, timing, display** — each tied to a
+behavior-change mechanism (salience → attention, precision → learning, meaning →
+motivation). One of its explicit sub-dimensions is **data granularity**: "the resolution of data
+presented... numeric data typically have high data granularity, whereas **a light that changes
+colors between green, yellow, and red has low data granularity**." That is a direct, named
+description of GLIDE's LED semaphore design, used by this literature as the canonical example
+of a *low-granularity* display.
+
+The framework's own reasoning for when low granularity is the right choice maps closely onto
+GLIDE's context: "greater granularity would be expected to support learning... However,
+**ambient displays often call for reduced data granularity so that information can be absorbed
+while the user is attending to some other task, such as driving**." A high-speed Eco-marathon
+attempt, where the driver's primary task is precise track control, is exactly this case — an
+argument for GLIDE's discrete LED over a continuous numeric delta, grounded in attentional
+load rather than aesthetics.
+
+The accompanying statistical meta-analysis (17 studies, 23 effect sizes, random-effects model)
+found onboard eco-driving feedback produces an average **6.6% fuel-economy improvement**
+(95% CI: 4.9–8.3%, p < .001) — a solid quantitative anchor for what a well-designed feedback
+system can be expected to deliver, independent of GLIDE's own eventual field results. Of 14
+pre-registered hypotheses about what makes feedback more effective, most (multi-modal
+display, both fine- and coarse-grained information, feedback standards, gamification) trended
+in the predicted direction but were **not** statistically significant at this sample size — with one
+exception: effectiveness reliably **decays with intervention length** (longer exposure → smaller
+effect), a caution relevant to any competition-season plan that assumes GLIDE's benefit stays
+constant across the full practice-to-competition timeline. Directly relevant to GLIDE's own open
+question (handover Section 4, item 4) about discrete-vs-continuous data granularity
+specifically: the meta-analysis flagged this exact hypothesis (H4) but had **insufficient studies**
+to test it empirically — this remains a genuine open gap in the literature, not just in GLIDE's
+own review.
+
+### Deep-dive 2 — Chada, Görges, Ebert, Teutsch & Puttige Subramanya, *"Evaluation of the
+Driving Performance and User Acceptance of a Predictive Eco-Driving Assistance System for
+Electric Vehicles"*, Transportation Research Part C (2022/2023), University of Kaiserslautern
+([arXiv:2208.11429](https://arxiv.org/pdf/2208.11429))
+
+A rigorous, real experimental study (not synthetic) — N=41 participants, six-DOF motion-platform
+driving simulator (IPG CarMaker + SUMO traffic co-simulation), a parameterized Nissan Leaf BEV
+model, MPC-based reference/car-following speed optimization, and formal TAM/TPB
+statistical analysis of user acceptance.
+
+Directly relevant to the discrete-vs-continuous question: pEDAS's HMI is itself a **hybrid**
+design — a *continuous* arrow (length encodes how far off the optimal speed the driver is,
+color encodes direction) combined with a *discrete* state change (digits turn from colored to
+**black** when the driver enters a ±2 km/h "optimal band," at which point the advice becomes
+categorical: stop touching the pedals and coast). This mirrors GLIDE's own planned
+architecture almost exactly — a continuous underlying error signal collapsed into a small number
+of discrete driver-facing states.
+
+Results: participants achieved average energy savings of **9.82%** overall (11% on highway
+segments), reduced speed-limit violations by ~46%, and reduced red-light stops by ~60%. Two
+findings are particularly load-bearing for GLIDE's design decisions:
+
+1. **A concrete failure mode of under-specified continuous feedback.** In participant debriefs,
+   at least one driver reported difficulty interpreting the *arrow-length* continuous signal and,
+   instead of coasting smoothly inside the optimal band as intended, ended up oscillating
+   between throttle and brake — which *increased* jerk and energy consumption relative to no
+   assistance at all. This is a directly documented instance of a continuous display creating
+   worse outcomes than a clearer discrete instruction would have, for at least a subset of
+   drivers — a concrete data point (not just theory) in favor of GLIDE's simpler 3-state approach.
+2. **Perceived usefulness (not perceived ease of use) was the strongest predictor of intent to
+   use the system** (TAM/TPB structural model, hierarchical regression), and **perceived
+   behavioral control** was the strongest TPB predictor. Ease-of-interpretation matters mainly
+   insofar as it feeds into perceived usefulness — supporting the idea that a system's clarity
+   (discrete, unambiguous) is instrumentally important primarily because it makes the system's
+   *usefulness* legible to the driver, not as an end in itself.
+
+### Positioning for Section 6
+
+Across both sources, the literature does not cleanly say "discrete beats continuous" or vice
+versa — it says each has a distinct behavior-change mechanism (continuous → precision/fine
+motor calibration; discrete → salience/low attentional cost) and that **the right choice depends
+on how much spare attention the driver has**. For GLIDE's use case — a driver at speed on a
+competition track, where the primary task is vehicle control, not fuel-economy
+micromanagement — the literature's own reasoning (ambient/ low-granularity displays for
+divided-attention contexts) directly supports the discrete LED choice already made on
+regulatory grounds (handover Section 2). It also surfaces a concrete, real risk in the *rejected*
+alternative (a continuous numeric/arrow display): documented cases of drivers misinterpreting
+continuous magnitude cues and behaving worse than with no assistance. This is probably the
+strongest, most literature-grounded argument found so far for GLIDE's HMI choice.
+
+### Next steps for this section
+
+- [ ] If useful later, look specifically for eco-driving HMI studies inside motorsport/high-speed
+  contexts (karting shift-lights, sim-racing delta bars under time pressure) rather than
+  commuter-car studies, to further validate the "divided attention" argument at racing speeds
+  rather than urban traffic speeds.
 
 ---
 
