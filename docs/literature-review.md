@@ -292,6 +292,28 @@ substantially different, higher-risk project (effectively replacing or integrati
 vehicle's homologated motor controller) rather than an evolution of the current LED-advisory
 scope.
 
+### Conceptual cross-domain note: reactive vs. anticipatory control
+
+A related, differently-applied control-theory framing worth carrying into Section 6: the
+distinction between **reactive** controllers (PID — act only once a tracking error is already
+measured) and **anticipatory** controllers (MPC and similar — act on a predicted future error
+before it materializes). This split is standard in aerospace/hypersonic re-entry GN&C
+literature, where PID is the low-cost reactive baseline and MPC/adaptive layers are added
+specifically to act ahead of fast-changing disturbances. It's a useful lens for GLIDE: the whole
+point of GLIDE's reference energy profile (handover Section 4) is to give the driver
+*anticipatory* information (a precomputed target curve, indexed by distance) rather than
+purely reactive feedback — i.e., GLIDE's PID error signal is computed against a plan that
+already encodes upcoming corners/segments, which is conceptually closer to a predictive
+scheme than to naive reactive control, even though the controller itself is a simple PID. Worth
+revisiting when drafting Section 6, as a way to frame why a "simple" PID can still behave
+anticipatorily if the setpoint itself is forward-looking.
+
+(Source note: this framing was cross-checked against the reactive-vs-anticipatory distinction
+as used generically in control theory and MPC literature; a specific re-entry-vehicle paper
+surfaced during this session was not used as a citation here, since its reported results are
+explicitly synthetic/unvalidated rather than experimental — only the general, well-established
+control-theory concept is carried forward.)
+
 ---
 
 ## 4. Driver-Coaching HMI Design (Discrete vs. Continuous Feedback)
