@@ -227,7 +227,70 @@ Section 4 (discrete vs. continuous HMI).
 
 ## 3. PID / Control-Based Energy Management in Student Competition Vehicles
 
-**Status:** _not started_
+**Status:** draft complete
+
+### Findings
+
+- **MDPI, *"Design, Construction, and Simulation-Based Validation of a High-Efficiency Electric
+  Powertrain for a Shell Eco-Marathon Urban Concept Vehicle"*** (2025/2026;
+  [DOI-indexed](https://www.mdpi.com/2411-9660/9/5/113) — `mdpi.com` blocked by this environment's
+  network policy, findings below are abstract/search-snippet level only). Same competition class as
+  GLIDE. Powertrain: 1500 W / 48 V BLDC motor, custom 12S8P Li-ion pack. A Simulink vehicle-dynamics
+  model runs a **PID controller that compares reference vs. actual velocity and outputs the torque
+  demand sent directly to the motor** — i.e., the PID's output actuates the drivetrain. Reported
+  consumption: <50 Wh/km, smooth tracking through acceleration/braking transitions.
+- **Springer, *"A Novel PID Controller-Based Control Strategy for a Formula Student
+  Vehicle"*** ([chapter page fetched in full; abstract confirmed, body paywalled](https://link.springer.com/chapter/10.1007/978-981-97-4895-2_15)).
+  Parallel-hybrid FSAE vehicle (PM DC motor + ICE via chain drive). PID regulates motor input
+  voltage so actual speed tracks target speed with minimal overshoot; gains tuned in
+  MATLAB/Simulink via a transfer-function-based tuner. Again, **PID output drives the actuator
+  directly** — no human in the loop.
+- Cross-reference to Section 1's deep-dive on Tian, Liu & Shi (PGACCS): PI controller explicitly
+  chosen over MPC/fuzzy/sliding-mode for being an "intelligible mechanism" with "strong robustness"
+  and "short computation time" — the most citable justification found for running PID on
+  lightweight embedded hardware (an Arduino, in GLIDE's case) rather than a heavier controller.
+- **Methodological note:** a Cal Poly M.S. thesis (Bickel, 2017, *"Optimizing Control of Shell
+  Eco-marathon Prototype Vehicle to Minimize Fuel Consumption"*) surfaced repeatedly in searches
+  alongside the MDPI paper and looked promising (same competition, "optimizing control"). Downloaded
+  and read in full (146 pages, via a scispace.com mirror since the official
+  digitalcommons.calpoly.edu PDF is behind a Cloudflare bot challenge) — confirmed **zero mentions
+  of PID**; it is actually an offline speed/gear-ratio optimization tool for a gasoline-powered
+  prototype, unrelated to closed-loop control. Excluded to avoid mis-citing it (the search engine's
+  auto-summary had conflated it with the MDPI paper).
+
+### Design discussion: should GLIDE ever act directly on the powertrain?
+
+Raised during this session by comparison to Formula 1 engine maps (Push/Hybrid/Save), which
+throttle power delivery automatically once selected. Every PID precedent found in this section
+(MDPI, Springer/FSAE, and Tian et al. in Section 1) uses PID output to **actuate the motor
+directly** — none of them puts a human between the controller and the actuator. This raised the
+question of whether GLIDE should do the same (an automatic power limiter) instead of, or in
+addition to, the advisory LED.
+
+**Decision: no — GLIDE stays advisory-only (LED instruction to the driver), not a direct
+powertrain actuator.** Reasoning:
+
+1. **Regulatory scope.** Shell Eco-marathon requires a *purpose-built motor controller* as part of
+   the vehicle's already-homologated propulsion system (Art. 66a, see handover Section 2). A PID
+   loop that outputs torque/power commands to the motor would make GLIDE part of that propulsion
+   control system rather than an auxiliary circuit — materially raising the Technical Inspection
+   burden (redundancy, fail-safe requirements) beyond what's currently scoped.
+2. **Safety / failure mode.** A firmware bug in an advisory LED produces, worst case, a wrong
+   color. A firmware bug in a system that gates motor power on-track (mid-corner, needing a burst
+   to avoid a hazard, interacting with other vehicles) is a materially more dangerous single point
+   of failure — much higher stakes than the F1 comparison suggests, since F1 engine maps are
+   driver-selected and built/certified by the manufacturer as part of the homologated power unit,
+   not retrofitted by a student team onto an existing vehicle.
+3. **Positioning vs. prior art (feeds Section 6).** Automatic PID-actuates-motor control for
+   PnG/ACF-style strategies is already a solved, published problem (MDPI, Springer, Tian et al.).
+   GLIDE's actual novelty — identified as the gap across Sections 1–3 — is keeping a human in the
+   loop with the same error signal. Moving to direct actuation would abandon that novelty and put
+   GLIDE in direct competition with already-published, more mature automated solutions instead.
+
+An engine-map-style automatic limiter remains a plausible **v2/future-work** idea, but as a
+substantially different, higher-risk project (effectively replacing or integrating with the
+vehicle's homologated motor controller) rather than an evolution of the current LED-advisory
+scope.
 
 ---
 
