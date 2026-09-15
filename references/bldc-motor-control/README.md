@@ -27,4 +27,26 @@ Batch 1 (5 papers, read in full):
   FOC.pdf` — AIP Conf. Proc. 2019, ITS Surabaya. Experimental comparison of six-step trapezoidal
   commutation vs. field-oriented control on the same 30 kW BLDC motor.
 
-6 more papers to be added in a second batch.
+Batch 2 (4 papers, read in full):
+
+- `Hazizi et al. - Design, Construction and Simulation-Based Validation of a High-Efficiency
+  Electric Powertrain for a Shell Eco-marathon Urban Concept Vehicle.pdf` — Designs (MDPI) 2025,
+  Coventry University. Full powertrain case study for the same competition category as the
+  Herons EV: BLDC motor selection, two-stage chain drive, custom 12S8P Li-ion pack, and a
+  MATLAB/Simulink PID-driven vehicle model validated at ~45.8 Wh/km.
+- `Prabhu, Thirumalaivasan & Ashok - Critical Review on Torque Ripple Sources and Mitigation
+  Control Strategies of BLDC Motors in EV Applications.pdf` — IEEE Access, 2023, Vellore
+  Institute of Technology. Large-scale survey (~240 references) taxonomizing BLDC torque-ripple
+  control into 7 families (FOC, DTC, intelligent/fuzzy/ANN, controlling input voltage, current
+  shaping, MPC, SMC) with comparison tables of dozens of specific published techniques each.
+- `Hazari et al. - Design of a Brushless DC (BLDC) Motor Controller.pdf` — ICEEICT 2014, American
+  International University-Bangladesh. From-scratch derivation of two-phase BLDC commutation
+  switching logic, implemented as both a digital logic circuit and an ATmega32 controller;
+  reports an $8.62 total component cost (~50% below commercial BLDC controllers).
+- `Kim, Toliyat, Panahi & Kim - BLDC Motor Control Algorithm for Low-Cost Industrial
+  Applications.pdf` — IEEE 2007, Texas A&M / UT Dallas / Yeungnam College. Generates three-phase
+  six-step PWM using general I/O pins and a single on-chip timer (MSP430F123) instead of a
+  dedicated multi-channel PWM peripheral, exploiting BLDC's complementary switching to avoid
+  needing dead-time; reports ~37% MCU cost reduction vs. parts with on-chip PWM generation.
+
+2 more papers may be added in a future batch.
