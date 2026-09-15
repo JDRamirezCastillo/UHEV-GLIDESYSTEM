@@ -31,9 +31,11 @@ Batch 2 (4 papers, read in full):
 
 - `Hazizi et al. - Design, Construction and Simulation-Based Validation of a High-Efficiency
   Electric Powertrain for a Shell Eco-marathon Urban Concept Vehicle.pdf` — Designs (MDPI) 2025,
-  Coventry University. Full powertrain case study for the same competition category as the
-  Herons EV: BLDC motor selection, two-stage chain drive, custom 12S8P Li-ion pack, and a
-  MATLAB/Simulink PID-driven vehicle model validated at ~45.8 Wh/km.
+  Coventry University. Full powertrain case study, same SEM Battery Electric rules as the Herons
+  EV but the **Urban Concept** category (the Herons EV races **Prototype**) — see the category
+  caveat in Section 6 of the review before treating its numbers as directly comparable. BLDC motor
+  selection, two-stage chain drive, custom 12S8P Li-ion pack, and a MATLAB/Simulink PID-driven
+  vehicle model validated at ~45.8 Wh/km (a UC-category figure, not a Prototype-class target).
 - `Prabhu, Thirumalaivasan & Ashok - Critical Review on Torque Ripple Sources and Mitigation
   Control Strategies of BLDC Motors in EV Applications.pdf` — IEEE Access, 2023, Vellore
   Institute of Technology. Large-scale survey (~240 references) taxonomizing BLDC torque-ripple
@@ -49,4 +51,12 @@ Batch 2 (4 papers, read in full):
   dedicated multi-channel PWM peripheral, exploiting BLDC's complementary switching to avoid
   needing dead-time; reports ~37% MCU cost reduction vs. parts with on-chip PWM generation.
 
-2 more papers may be added in a future batch.
+Batch 3 (1 paper, read in full — closes out the currently planned set):
+
+- `Surakasi et al. - A Novel Methodology to Enhance the Smooth Running of the PM BLDC Motor Drive
+  Using PWM-PWM Logic and Advance Angle Method.pdf` — Machines (MDPI) 2023, Anil Neerukonda
+  Institute of Technology / Aditya Institute of Technology & Management / Alexandria University /
+  Cardiff University. Advance-angle (lead-angle) compensation for inductance-caused current lag,
+  plus a synchronous-rectification "PWM-PWM" commutation scheme with K-map-derived suppression
+  logic for the extra reverse-current noise it introduces; validated on a 470 V / ~100 Nm
+  industrial BLDC motor in simulation and on real hardware.

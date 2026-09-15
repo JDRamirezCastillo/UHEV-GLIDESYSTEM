@@ -1,6 +1,6 @@
 # BLDC Motor Control — Literature Review / State of the Art
 
-Unisabana Herons EV — Shell Eco-marathon Prototype
+Unisabana Herons EV — Shell Eco-marathon Prototype, Battery Electric
 
 Status: living document, built in batches. This is a **separate review from
 `docs/literature-review/literature-review.md`** (the GLIDE driver-feedback review) — this one
@@ -21,16 +21,22 @@ Batch 1 covers 5 papers spanning four sub-topics in BLDC motor control:
 
 Batch 2 adds 4 more papers:
 
-5. A full Shell Eco-marathon Urban Concept powertrain built around a BLDC motor — the closest
-   direct comparandum to the Herons EV in this whole review.
+5. A full Shell Eco-marathon powertrain build (Urban Concept category — see the note on category
+   differences in Section 6) around a BLDC motor — the closest documented full-vehicle comparandum
+   to the Herons EV in this whole review, though a different SEM category.
 6. A much larger survey (~240 references) that places Batch 1's torque-ripple findings inside a
    7-family taxonomy of control strategies, with quantified comparison tables for each.
 7. A from-scratch, minimal-hardware commutation-logic design (digital logic + cheap MCU).
 8. A technique for generating six-step PWM from general I/O pins on an MCU with only one on-chip
    timer, avoiding the cost of dedicated PWM peripherals.
 
-2 more papers may be added in a future batch. Each section below records what was found, the key
-equations/results, and how it bears on the Herons EV's BLDC drive.
+Batch 3 adds a final paper (closing out the currently planned set):
+
+9. An advance-angle (lead-angle) compensation method plus a synchronous-rectification "PWM-PWM"
+   commutation scheme, validated on a real high-power industrial BLDC motor.
+
+Each section below records what was found, the key equations/results, and how it bears on the
+Herons EV's BLDC drive.
 
 ---
 
@@ -290,10 +296,19 @@ too heavy for the platform.
 Simulation-Based Validation of a High-Efficiency Electric Powertrain for a Shell Eco-marathon
 Urban Concept Vehicle," Designs (MDPI) 9(5) 113 (2025), Coventry University (BA Momentum team).**
 
-The closest direct comparandum in this whole review: a full, documented, competition-built BLDC
-powertrain for the **same Shell Eco-marathon Urban Concept category and voltage class** as the
-Herons EV, with open-access CAD, bill of materials, and a validated Simulink model — essentially
-a reference design the Herons EV's own drivetrain choices can be checked against line by line.
+The closest documented full-vehicle comparandum in this whole review — with one important caveat.
+**Category note:** this Coventry team competes in Shell Eco-marathon's **Urban Concept** class
+(road-car-like body, upright seating, closer to a real micro-EV), not **Prototype** (the Herons
+EV's class: reclined/lay-down driving position, extreme streamlining, far lower aerodynamic drag
+and typically far lower Wh/km targets). The two categories share the same overall regulatory
+framework (SEM Battery Electric rules: ≤60 V, ≤1000 Wh, BMS/containment requirements) and the same
+basic systems-engineering task (motor/transmission/battery selection, drive-cycle simulation), but
+their energy-consumption numbers are **not directly comparable** — a Prototype vehicle's much
+lower drag and mass mean its Wh/km target should be well below this paper's 45.8 Wh/km Urban
+Concept baseline, so that figure should be read as a UC-category reference point, not a Herons EV
+target. With that caveat, this is still the paper in this review closest to a reference design the
+Herons EV's own drivetrain choices can be checked against line by line — open-access CAD, full
+bill of materials, and a validated Simulink model.
 
 **Motor and drivetrain selection.** A structured decision matrix scored brushed DC, induction,
 reluctance, BLDC, and PMSM motors on efficiency, power density, control complexity, cost, and
@@ -340,13 +355,18 @@ nonlinear motor maps, and thermal/wear effects were all excluded from the model 
 work requiring hardware-in-the-loop validation.
 
 **Relevance:** this paper is less "a technique to adopt" and more "a sibling design to
-cross-check against" — same competition category, same rough voltage class, comparable vehicle
-mass, published BOM/costs (total budget GBP 13,500) and a validated 45.8 Wh/km baseline. If the
-Herons EV's own drivetrain is a single-motor BLDC + chain drive, this paper's component choices,
-gear-ratio-sizing method, and Simulink modeling structure (drive cycle → PID → EDU → vehicle
-dynamics → battery, Section 4 of this paper's Figure 3) are a near-direct template; where the two
-designs diverge (motor supplier/rating, chain vs. other transmission, custom vs. COTS controller)
-is exactly where a comparative cost/efficiency case is easiest to make.
+cross-check against," with the Urban-Concept-vs-Prototype caveat above in mind — same overall SEM
+Battery Electric voltage/energy rules, comparable systems-engineering task, published BOM/costs
+(total budget GBP 13,500), but a different category with a different drag/mass profile, so its
+45.8 Wh/km is a UC-category data point rather than a Herons EV energy-consumption target. If the
+Herons EV's own drivetrain is a single-motor BLDC + chain drive (a very common choice across SEM
+categories, not Urban-Concept-specific), this paper's component-selection method, gear-ratio-sizing
+approach, and Simulink modeling structure (drive cycle → PID → EDU → vehicle dynamics → battery,
+Section 4 of this paper's Figure 3) are a near-direct template regardless of category; where the
+two designs diverge (motor supplier/rating, chain vs. other transmission, custom vs. COTS
+controller, and of course the Prototype-class aerodynamics/mass that should push the Herons EV's
+own Wh/km target well below this paper's) is exactly where a comparative cost/efficiency case is
+easiest to make.
 
 ---
 
@@ -508,9 +528,82 @@ like on hardware one tier cheaper, at the cost of more interrupt-handler complex
 
 ---
 
-## 10. Synthesis (Batches 1–2)
+## 11. Advance-Angle Compensation and Synchronous-Rectification "PWM-PWM" Commutation
 
-Across all nine papers, three threads recur:
+**Surakasi, Satish, Pydi, Kotb, Shouran & Abdul Samad, "A Novel Methodology to Enhance the Smooth
+Running of the PM BLDC Motor Drive Using PWM-PWM Logic and Advance Angle Method," Machines (MDPI)
+11(1) 41 (2023), Anil Neerukonda Institute of Technology / Aditya Institute of Technology &
+Management / Alexandria University / Cardiff University.**
+
+Two independent, combinable techniques for smoothing trapezoidal BLDC torque, validated on a real
+high-power industrial motor (their Table 1 parameters: $J=0.155$ kg·m², $K_b=0.07$ V/(rad/s),
+$L=46.2$ μH, $R=0.0127$ Ω, 9 pole pairs — a 470 V-bus, ~100 A, ~100 Nm-class machine, far larger
+than a competition EV drive, but the two techniques themselves are scale-independent).
+
+**1. Advance-angle ("AS voltage") method.** The same root cause as Batch 1 Section 1 (Su &
+McKeever) and the FOC/DTC families in Batch 2 Section 7: winding inductance makes phase current lag
+phase voltage, and since torque is proportional to back-EMF times *in-phase* current component,
+any lag directly costs torque-per-amp. Rather than correcting this via sensorless phase-delay
+lookup tables (Batch 1 Section 1) or a full coordinate-transform controller (FOC/DTC), this paper
+uses a single scalar "AS voltage" signal to advance the commutation/switching angle by 0–58°,
+scaled linearly with load: ~0.5 V (near 0° advance) at no load up to ~4.5 V (near 58° advance) at
+full load (their Figures 4–5). This is a cheap, open-loop-per-sample correction — one gain-scheduled
+lookup rather than a control loop — layered on top of standard six-step commutation.
+
+**2. PWM-PWM commutation logic.** Conventional trapezoidal drives use "ON-PWM": one phase's
+high-side switch stays fully on for a 120° interval while the low-side of a second phase does the
+actual PWM chopping. This paper's alternative has **both** the high-side and low-side of the active
+phases PWM in a complementary pattern (each phase does PWM for two 60° steps, i.e. every phase is
+either off or actively PWM-switching, never held at a flat 100% duty), enabling **synchronous
+rectification** — the low-side MOSFET actively conducts during freewheeling intervals instead of a
+diode conducting the freewheel current, cutting conduction loss. The tradeoff: this scheme can
+allow negative current to briefly flow back into the DC bus during phase-to-phase handoff (through
+a freewheeling diode) as one phase's low-side stops PWM and another phase's starts — a new
+noise/ripple source the traditional ON-PWM scheme doesn't have, because in ON-PWM the always-on
+high-side switch never lets that reverse path form. The paper's actual contribution is **the
+digital logic that suppresses this new noise source**: a K-map-derived truth table over the three
+Hall-sensor-based back-EMF sign signals ($e_a, e_b, e_c$) drives the commutation-state gate signals
+(their Figure 6), combined with a second K-map-derived block that gates the PWM duty signal itself
+per phase (their Figure 7) — i.e. the same "derive the exact truth table, then implement it in
+logic" method as Batch 2 Section 8 (Hazari et al.), but for a three-phase synchronous-rectification
+scheme instead of a from-scratch two-phase design.
+
+**Speed-loop context:** an outer sliding-mode controller (SMC) is used only to generate the speed
+error driving the reference torque/current — SMC's role here is narrow (speed-error identification
+feeding a torque reference) rather than SMC being used for the torque/ripple control itself, unlike
+the SMC family surveyed in Batch 2 Section 7.
+
+**Results.** Both simulation (Simulink, their Figure 10, full DC-bus/inverter/motor model) and
+oscilloscope validation on real hardware (Figs. 16–19) at a 2000 rpm reference speed: electromagnetic
+and shaft torque "almost coincide" with **no visible ripple**, including under a staircase
+(multi-step) load profile (their Figure 15) — a qualitatively stronger ripple-suppression claim
+than any single technique in Batch 1 or Batch 2's Section 7 tables, though reported only
+qualitatively (from oscilloscope traces) rather than as a numeric ripple percentage, unlike most of
+Section 7's tabulated techniques. With the advance-angle method active, phase voltage and current
+are shown nearly in phase at full load (their Figure 19) — i.e. close to unity displacement power
+factor at the phase level, consistent with the method's stated purpose of eliminating the
+inductance-caused lag.
+
+**Relevance:** two takeaways at different levels of the design. First, the **advance-angle method**
+is a genuinely lightweight addition to a plain trapezoidal drive — a single load-proportional
+scalar correction, not a new control loop — and is a natural complement to Batch 1 Section 3's
+simple PI speed-loop blueprint if the team wants to claw back some of FOC's smoothness advantage
+(Batch 1 Section 5) without FOC's coordinate-transform complexity; it is arguably the lowest-effort
+entry in this entire review's "buy back trapezoidal's smoothness deficit" set (alongside Batch 1
+Section 4's MPC and Batch 2 Section 7's wider taxonomy). Second, the **PWM-PWM logic** is a concrete
+efficiency lever (synchronous rectification cuts conduction loss vs. diode freewheeling) that
+trades a small amount of extra digital-logic complexity for it — directly combinable with Batch 2
+Section 9's "generate PWM from general I/O + one timer" technique if a from-scratch, cost-minimized
+controller is the chosen path, since both are digital-logic-level design decisions rather than
+requiring a more capable MCU. The motor scale in this paper (470 V, ~100 Nm) is far outside a
+competition EV drive's range, so any adoption would need re-validation at the Herons EV's actual
+voltage/current/torque scale — the *techniques* transfer, the specific component values do not.
+
+---
+
+## 12. Synthesis (Batches 1–3)
+
+Across all ten papers, four threads recur:
 
 - **The 4×-BEMF commutation condition** (Batch 1 Sections 2 and 4) is the unifying quantitative
   fact behind commutation torque ripple in six-step trapezoidal BLDC drives; Batch 2 Section 7
@@ -518,26 +611,43 @@ Across all nine papers, three threads recur:
   published taxonomy of ripple-suppression techniques, with MPC (Batch 1 Section 4's family)
   reported as the strongest performer on ripple/THD at the highest computational cost, and DTC and
   SMC as the leading alternatives on transient response and parameter robustness respectively.
-- **Simplicity vs. smoothness/cost is the recurring tradeoff**, and Batch 2 adds two concrete data
-  points at the *cheap* end of that spectrum that Batch 1 didn't have: a from-scratch commutation
-  design costing $8.62 in parts (Section 8), and a software-PWM technique cutting MCU cost ~37%
-  by avoiding a dedicated PWM peripheral entirely (Section 9). Both are ways of buying back some
-  of trapezoidal commutation's cost advantage over FOC (Batch 1 Section 5) at the hardware layer,
-  as opposed to Batch 1 Section 4 and Batch 2 Section 7's software/control-algorithm approaches to
-  buying back some of trapezoidal's *smoothness* disadvantage.
-- **Build vs. buy is now a visible fork**, thanks to Section 6: a real competition team in the same
-  category as the Herons EV, facing the same FOC-vs-trapezoidal and custom-vs-COTS questions this
-  review has been assembling literature for, resolved it by buying an off-the-shelf FOC controller
-  (Sabvoton SVMC72150) rather than building either a trapezoidal or FOC drive from scratch — which
-  reframes Sections 1–5, 7–9 of this review as most useful either for *evaluating* whether a COTS
-  controller is doing something reasonable, or for a from-scratch build if the team decides
-  against the COTS route.
+  Batch 3 Section 11 adds a qualitatively different, much cheaper lever at this same problem —
+  advance-angle compensation — that doesn't appear as a named family in Section 7's taxonomy at
+  all, suggesting the taxonomy, despite its ~240 references, isn't fully exhaustive of the
+  published technique space.
+- **Simplicity vs. smoothness/cost is the recurring tradeoff**, and Batches 2–3 add three concrete
+  data points at the *cheap* end of that spectrum that Batch 1 didn't have: a from-scratch
+  commutation design costing $8.62 in parts (Batch 2 Section 8), a software-PWM technique cutting
+  MCU cost ~37% by avoiding a dedicated PWM peripheral entirely (Batch 2 Section 9), and a
+  single-scalar advance-angle correction that claws back smoothness without a new control loop
+  (Batch 3 Section 11). The first two buy back trapezoidal's cost advantage over FOC at the
+  hardware layer; the advance-angle method and Batch 1 Section 4's MPC buy back trapezoidal's
+  *smoothness* disadvantage at the software/algorithm layer — and Section 11's PWM-PWM logic shows
+  those two layers can be combined (synchronous-rectification logic stacked on top of
+  general-I/O-pin PWM generation) rather than being mutually exclusive design axes.
+- **Build vs. buy is a visible fork**, thanks to Section 6: a real Shell Eco-marathon team (Urban
+  Concept category — see Section 6's category caveat; not the Herons EV's Prototype class, though
+  the same SEM Battery Electric rules and overall systems-engineering task apply) facing the same
+  FOC-vs-trapezoidal and custom-vs-COTS questions this review has been assembling literature for,
+  resolved it by buying an off-the-shelf FOC controller (Sabvoton SVMC72150) rather than building
+  either a trapezoidal or FOC drive from scratch — which reframes Sections 1–5, 7–9, 11 of this
+  review as most useful either for *evaluating* whether a COTS controller is doing something
+  reasonable, or for a from-scratch build if the team decides against the COTS route.
+- **Scale varies enormously across this review's motors** — from a 70 W hobby-class motor (Batch 1
+  Section 2) up to a 470 V / ~100 Nm industrial motor (Batch 3 Section 11) — and every technique
+  covered is presented as scale-independent in its underlying physics (BEMF lag, commutation
+  ripple, dead-time-free switching) even though the specific numeric results (ripple percentages,
+  component costs, cited voltages/currents) obviously are not. Any technique pulled from this
+  review for the Herons EV's actual drive needs re-validation at that drive's real voltage/current/
+  torque scale, not just adoption of the published numbers.
 
 **Open questions carried forward:** what commutation/control architecture (if any) the Herons EV's
 actual drive electronics currently use, and specifically whether it's a COTS controller (as in
 Section 6) or a custom design; if custom, whether it would be better served by Batch 1 Section 3's
-simple PI blueprint, Batch 1 Section 5's smoother-but-heavier FOC, or one of Section 7's ranked
-alternatives (MPC for best ripple performance, DTC for best transient response), given the
-platform's MCU resources; and how the Herons EV's own energy-consumption figures compare to
-Section 6's 45.8 Wh/km baseline and the wider SEM Urban Concept field it cites (<5 Wh/km to ~20
-Wh/km).
+simple PI blueprint, Batch 1 Section 5's smoother-but-heavier FOC, one of Batch 2 Section 7's
+ranked alternatives (MPC for best ripple performance, DTC for best transient response), or Batch 3
+Section 11's lighter-weight advance-angle addition, given the platform's MCU resources; and what
+the Herons EV's own energy-consumption target should be, benchmarked against Section 6's 45.8
+Wh/km Urban Concept baseline only as a cross-category reference point, not a same-category
+comparison — the Herons EV's Prototype-class aerodynamics and mass should support a materially
+lower Wh/km figure.
